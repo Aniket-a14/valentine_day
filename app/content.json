@@ -1,0 +1,129 @@
+{
+    "songs": [
+        {
+            "id": "y_GVDbfaiwQ",
+            "title": "Dooron Dooron",
+            "quote": "Since the first time I saw you..."
+        },
+        {
+            "id": "SlK-0ha1bTw",
+            "title": "Ishq Hain",
+            "quote": "You sweeten my life like nothing else."
+        },
+        {
+            "id": "ElZfdU54Cp8",
+            "title": "Apna Bana Le",
+            "quote": "I found my home in you."
+        },
+        {
+            "id": "1-nnEM8chwo",
+            "title": "Khoobsurat",
+            "quote": "Every shade of you is my favorite color."
+        },
+        {
+            "id": "cxKAtmvf-uM",
+            "title": "Tumhare Hi Rahenge Hum",
+            "quote": "I want to drink in every moment with you."
+        },
+        {
+            "id": "ZX6XN8Ud2vU",
+            "title": "Jeena Laga Hoon",
+            "quote": "I'm falling for you, every single day."
+        },
+        {
+            "id": "NFsEqOBG51M",
+            "title": "Aaj Se Teri",
+            "quote": "I see my whole world in your eyes."
+        },
+        {
+            "id": "BWczaSneA0Q",
+            "title": "Jhol",
+            "quote": "You are the most beautiful thing to happen to me."
+        },
+        {
+            "id": "LMnJp_dSdnw",
+            "title": "Darkhaast",
+            "quote": "Every part of me belongs to you."
+        }
+    ],
+    "reasons": [
+        "The way you smile at small things.",
+        "How you always know what to say.",
+        "Your laugh is my favorite sound.",
+        "You make the world feel softer.",
+        "Just being you is enough."
+    ],
+    "letter": [
+        "My Dearest,",
+        "",
+        "From the moment you walked into my life, everything became brighter.",
+        "Your smile is my favorite sunrise, and your laugh is my favorite song.",
+        "",
+        "I promise to always be there for you, to cheer you on,",
+        "and to love you more with every passing day.",
+        "",
+        "Forever yours,",
+        "Me ❤️"
+    ],
+    "no_phrases": [
+        "No",
+        "Are you sure?",
+        "Really?",
+        "Soch le",
+        "Wapas nhi milunga",
+        "Mat kar yaar",
+        "Dekh le",
+        "Last time :(",
+        "Okay..."
+    ],
+    "celebration": {
+        "header": "Yay! You said YES! ❤️",
+        "subheader": "I knew you'd say yes 💖 You just made me the happiest person alive!"
+    },
+    "coupons": [
+        {
+            "title": "Dinner Date",
+            "description": "Anywhere you want to go!",
+            "color": "bg-rose-500"
+        },
+        {
+            "title": "Yes Day",
+            "description": "I have to say yes to everything.",
+            "color": "bg-pink-500"
+        },
+        {
+            "title": "Midnight Drive",
+            "description": "Just us, music, and the road.",
+            "color": "bg-rose-400"
+        },
+        {
+            "title": "Massage",
+            "description": "Unlimited duration. No complaints.",
+            "color": "bg-pink-400"
+        },
+        {
+            "title": "Movie Night",
+            "description": "You pick the movie & snacks.",
+            "color": "bg-rose-500"
+        },
+        {
+            "title": "Wish Card",
+            "description": "One wish granted. Terms apply ;)",
+            "color": "bg-pink-500"
+        }
+    ],
+    "audio": {
+        "click": "https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3",
+        "hover": "https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3",
+        "success": "https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3",
+        "type": "/mrstokes302-pen-writing-sfx-430839.mp3",
+        "tear": [
+            "https://assets.mixkit.co/active_storage/sfx/2413/2413-preview.mp3",
+            "https://assets.mixkit.co/active_storage/sfx/2414/2414-preview.mp3",
+            "https://assets.mixkit.co/active_storage/sfx/2418/2418-preview.mp3",
+            "https://assets.mixkit.co/active_storage/sfx/2388/2388-preview.mp3",
+            "https://assets.mixkit.co/active_storage/sfx/2389/2389-preview.mp3",
+            "https://assets.mixkit.co/active_storage/sfx/2573/2573-preview.mp3"
+        ]
+    }
+}
