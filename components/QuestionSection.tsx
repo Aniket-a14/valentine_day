@@ -45,37 +45,36 @@ export default function QuestionSection({ onAccept }: QuestionSectionProps) {
     const isNoGone = noCount >= NO_PHRASES.length;
 
     return (
-        <div className="z-10 text-center max-w-xl w-full mx-auto flex flex-col items-center gap-10 animate-in fade-in zoom-in duration-1000">
+        <div className="z-10 text-center max-w-xl w-full mx-auto flex flex-col items-center gap-12 animate-in fade-in zoom-in duration-1000">
 
             {/* Icon: Soft, floating, comforting */}
-            <div className="relative mb-2">
-                <div className={`w-28 h-28 bg-white/80 backdrop-blur-sm rounded-full shadow-[0_10px_40px_rgba(236,72,153,0.2)] flex items-center justify-center relative z-10 animate-bounce border border-pink-50 transition-transform duration-300 ${yesHover ? "scale-110" : "scale-100"}`}>
-                    {yesHover ? (
-                        <span className="text-5xl filter drop-shadow-sm">💘</span>
-                    ) : (
-                        <Heart className="w-12 h-12 text-rose-400 fill-rose-100 drop-shadow-sm" strokeWidth={1.5} />
-                    )}
+            <div className="relative mb-4">
+                <div className={`w-28 h-28 bg-white/30 backdrop-blur-2xl rounded-full shadow-[0_8px_32px_rgba(236,72,153,0.1)] flex items-center justify-center relative z-10 animate-float-slow border border-white/40 transition-all duration-700 ${yesHover ? "scale-105 shadow-[0_12px_48px_rgba(236,72,153,0.2)]" : "scale-100"}`}>
+                    <Heart
+                        className={`w-12 h-12 transition-all duration-700 leading-none ${yesHover ? "text-rose-500 fill-rose-500 scale-110" : "text-rose-400 fill-rose-100"}`}
+                        strokeWidth={1.5}
+                    />
                 </div>
                 {/* Glow behind */}
-                <div className="absolute inset-0 bg-pink-300 blur-3xl opacity-20 rounded-full animate-pulse-soft"></div>
+                <div className="absolute inset-0 bg-rose-200 blur-3xl opacity-20 rounded-full animate-pulse-soft"></div>
             </div>
 
             {/* Typography: Warm & Romantic */}
-            <h1 className="text-5xl md:text-7xl font-romantic text-rose-500 tracking-wide leading-tight drop-shadow-sm py-2 animate-breathe">
-                Will you be<br />my Valentine?
+            <h1 className="text-4xl md:text-6xl font-romantic text-rose-500 tracking-wider leading-[1.2] py-2 animate-breathe max-w-lg mx-auto drop-shadow-[0_2px_10px_rgba(251,113,133,0.1)]">
+                Will you be my Valentine?
             </h1>
 
             {/* Actions: Comfy Buttons */}
-            <div className="flex flex-col md:flex-row items-center justify-center gap-6 mt-4 w-full">
+            <div className="flex flex-col md:flex-row items-center justify-center gap-12 mt-8 w-full min-h-[160px]">
 
-                {/* Comfy YES Button - Massive & Changing Emoji */}
+                {/* Comfy YES Button - Elegant & Focused */}
                 <button
                     onClick={handleYesClick}
                     onMouseEnter={() => { setYesHover(true); playHover(); }}
                     onMouseLeave={() => setYesHover(false)}
-                    className="btn-comfy-primary py-4 px-12 text-3xl md:py-6 md:px-20 md:text-5xl font-elegant italic min-w-[200px] md:min-w-[260px] flex items-center justify-center gap-4 animate-bounce hover:scale-105 transition-transform"
+                    className="btn-comfy-primary py-4 px-16 text-2xl md:py-6 md:px-24 md:text-3xl font-elegant italic min-w-[200px] md:min-w-[340px] flex items-center justify-center gap-4 z-20"
                 >
-                    Yes <span className="text-3xl md:text-4xl filter drop-shadow-md">{yesHover ? "💘" : "💖"}</span>
+                    Yes <Heart className={`w-6 h-6 md:w-8 md:h-8 transition-all duration-700 ${yesHover ? "fill-white scale-110" : "fill-rose-100"}`} />
                 </button>
 
                 {/* Gentle NO Button */}
@@ -83,10 +82,9 @@ export default function QuestionSection({ onAccept }: QuestionSectionProps) {
                     <button
                         onMouseEnter={() => { handleNoClick(); playHover(); }}
                         onClick={handleNoClick}
-                        className="btn-comfy-secondary py-3 px-8 text-lg font-elegant italic"
+                        className="btn-comfy-secondary py-3 px-10 text-lg font-elegant italic opacity-40 hover:opacity-100 transition-all duration-500"
                         style={{
-                            transform: `scale(${Math.max(1 - noCount * 0.1, 0.5)})`,
-                            opacity: Math.max(1 - noCount * 0.1, 0)
+                            transform: `scale(${Math.max(1 - noCount * 0.1, 0.6)})`,
                         }}
                     >
                         {getNoButtonText()}
@@ -95,9 +93,9 @@ export default function QuestionSection({ onAccept }: QuestionSectionProps) {
             </div>
 
             {/* Footer: Static at bottom */}
-            <div className="mt-16 flex justify-center opacity-60 hover:opacity-100 transition-opacity duration-500 z-10">
-                <p className="font-elegant italic text-rose-400 text-sm tracking-widest flex items-center gap-2 bg-white/40 backdrop-blur-sm px-6 py-2 rounded-full border border-pink-100/50 shadow-sm pointer-events-auto hover:bg-white/60 transition-colors">
-                    Made with <Heart className="w-4 h-4 fill-rose-300 animate-pulse" /> for my favorite person
+            <div className="mt-32 flex justify-center opacity-20 hover:opacity-60 transition-opacity duration-1000 z-10">
+                <p className="font-elegant italic text-rose-400 text-xs tracking-[0.3em] flex items-center gap-4 bg-white/5 backdrop-blur-xl px-12 py-4 rounded-full border border-white/10 pointer-events-auto hover:bg-white/10 transition-all">
+                    MADE WITH <Heart className="w-3 h-3 fill-rose-300/40" /> FOR YOU
                 </p>
             </div>
         </div>

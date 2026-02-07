@@ -1,8 +1,6 @@
-"use client";
+import { useEffect, useState, memo } from "react";
 
-import { useEffect, useState } from "react";
-
-const EMOJIS = ["☁️", "❤️", "💖", "💕", "🧸", "🌹", "🥰", "✨", "🚀", "👩‍💻", "💻", "👾", "💌", "⚡"];
+const EMOJIS = ["☁️", "❤️", "💖", "💕", "🧸", "🌹", "🥰", "✨", "🚀", "👾", "💌", "⚡"];
 
 interface FloatingElement {
     id: number;
@@ -10,34 +8,37 @@ interface FloatingElement {
     left: number;
     delay: number;
     duration: number;
+    size: number;
 }
 
-export default function Background() {
+const Background = memo(function Background() {
     const [elements, setElements] = useState<FloatingElement[]>([]);
 
     useEffect(() => {
-        // Generate random floating elements
-        const newElements = Array.from({ length: 25 }).map((_, i) => ({
+        const count = window.innerWidth < 768 ? 15 : 25;
+        const newElements = Array.from({ length: count }).map((_, i) => ({
             id: i,
             emoji: EMOJIS[Math.floor(Math.random() * EMOJIS.length)],
             left: Math.random() * 100,
             delay: Math.random() * 15,
-            duration: 25 + Math.random() * 20,
+            duration: 20 + Math.random() * 20,
+            size: Math.random() * 2 + 1.2
         }));
         setElements(newElements);
     }, []);
 
     return (
-        <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+        <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none select-none">
             {elements.map((el) => (
                 <div
                     key={el.id}
                     className="floating-element"
                     style={{
                         left: `${el.left}%`,
-                        fontSize: `${Math.random() * 2 + 1.5}rem`,
+                        fontSize: `${el.size}rem`,
                         animationDelay: `${el.delay}s`,
                         animationDuration: `${el.duration}s`,
+                        willChange: 'transform'
                     }}
                 >
                     {el.emoji}
@@ -45,4 +46,6 @@ export default function Background() {
             ))}
         </div>
     );
-}
+});
+
+export default Background;

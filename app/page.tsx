@@ -11,7 +11,7 @@ export default function Home() {
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center p-4 overflow-hidden">
       <Background />
-      <main className="z-10 w-full max-w-5xl flex flex-col items-center justify-center text-center">
+      <main id="main-content" className="z-10 w-full max-w-5xl flex flex-col items-center justify-center text-center">
         {!accepted ? (
           <div className="w-full animate-in fade-in zoom-in duration-1000 fill-mode-forwards">
             <QuestionSection onAccept={() => setAccepted(true)} />

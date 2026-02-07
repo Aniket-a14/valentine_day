@@ -12,10 +12,11 @@ An ultra-premium, interactive web application designed as a deeply personal digi
 
 This is not a template; it's a high-fidelity digital haptic experience.
 
+*   **🎀 Cinema Studio Ribbon**: An organic, physics-based 3D weaving ribbon that flows through the content. Featuring **Adaptive Sampling** for mobile and **Matte-Satin Physical Modeling** for a premium silk-like appearance.
+*   **🔘 Ribbon visibility Toggle**: A minimal, floating control (bottom-left) that allows users to show or hide the ribbon at any time, with persistent state saved locally.
 *   **🎟️ Interactive Love Coupons**: A digital booklet of redeemable "tickets" (Dinner Date, Massage, etc.) featuring a unique **Tear-Off Animation** and randomized paper rip sounds.
-*   **🔊 Polyphonic Audio Engine**: A custom-built sound system that supports overlapping audio effects. Features snappy pops, celebratory chimes, and tactile feedback that makes the digital interface feel physical.
-*   **✍️ Handwritten Letter**: A secret, typewriter-style love letter that reveals itself character-by-character, accompanied by a **Looped Pen-on-Paper Writing Sound** for authentic intimacy.
-*   **🖱️ Cursor Heart Trail**: A graceful, floating heart trail that follows every movement, adding a layer of magical interaction.
+*   **🔊 Polyphonic Audio Engine**: A custom-built sound system that supports overlapping audio effects. Features snappy pops, celebratory chimes, and tactile feedback.
+*   **✍️ Handwritten Letter**: A secret, typewriter-style love letter that reveals itself character-by-character, accompanied by a **Looped Pen-on-Paper Writing Sound**.
 
 ## ✨ Core Features
 
@@ -24,12 +25,13 @@ This is not a template; it's a high-fidelity digital haptic experience.
 *   **Resonant Reasons**: An elegant card deck cycling through "Why you're special," designed with clean typography and soft transitions.
 *   **Mobile-Optimized**: A full responsive overhaul ensures the experience is just as beautiful on an iPhone or Android as it is on a desktop.
 
-## 🛠️ Performance & Optimization
+## 🛠️ Performance & Optimization (Silk Smooth 60fps)
 
-*   **Low-Latency Triggers**: The "Yes" click logic is staggered to prioritize audio threads, ensuring zero-delay confirmation sounds.
+*   **Adaptive Geometry**: The Cinema Ribbon automatically adjusts its vertex density (380 steps on desktop, 120 on mobile) to maintain peak performance without sacrificing visual quality.
+*   **GPU Hardware Acceleration**: Utilizes `will-change: transform` hints to prioritize hardware-accelerated rendering for all fluid animations.
+*   **Throttled Height Physics**: Refined `MutationObserver` and resize listeners are throttled to 10fps to minimize CPU load during layout shifts.
 *   **Polyphonic Playback**: Uses `cloneNode()` logic in the `useSound` hook to allow rapid, overlapping sound effects without clipping.
-*   **Strict Duration Control**: Critical action sounds (like coupon tearing) are programmatically capped at 800ms to maintain a snappy, high-end feel.
-*   **Data-Driven**: 100% of the content is externalized into a single JSON file for effortless white-labeling.
+*   **Data-Driven Customization**: 100% of the content is externalized into `content.json` for effortless white-labeling.
 
 ---
 
