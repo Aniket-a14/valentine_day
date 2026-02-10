@@ -16,6 +16,7 @@ export default function QuestionSection({ onAccept }: QuestionSectionProps) {
     const [noCount, setNoCount] = useState(0);
     const [yesHover, setYesHover] = useState(false);
     const { playClick, playHover, playSuccess } = useSound();
+    const [isShaking, setIsShaking] = useState(false);
 
     const handleYesClick = () => {
         // Trigger sound immediately
@@ -43,6 +44,17 @@ export default function QuestionSection({ onAccept }: QuestionSectionProps) {
     };
 
     const isNoGone = noCount >= NO_PHRASES.length;
+
+    const triggerShake = () => {
+        setIsShaking(true);
+        setTimeout(() => setIsShaking(false), 400);
+    };
+
+    const handleNoInteraction = () => {
+        handleNoClick();
+        playHover();
+        triggerShake();
+    }
 
     return (
         <div className="z-10 text-center max-w-xl w-full mx-auto flex flex-col items-center gap-12 animate-in fade-in zoom-in duration-1000">
@@ -80,9 +92,9 @@ export default function QuestionSection({ onAccept }: QuestionSectionProps) {
                 {/* Gentle NO Button */}
                 {!isNoGone && (
                     <button
-                        onMouseEnter={() => { handleNoClick(); playHover(); }}
-                        onClick={handleNoClick}
-                        className="btn-comfy-secondary py-3 px-10 text-lg font-elegant italic opacity-40 hover:opacity-100 transition-all duration-500"
+                        onMouseEnter={handleNoInteraction}
+                        onClick={handleNoInteraction}
+                        className={`btn-comfy-secondary py-3 px-10 text-lg font-elegant italic opacity-40 hover:opacity-100 transition-all duration-200 ${isShaking ? "animate-shake bg-rose-100/20 border-rose-200" : ""}`}
                         style={{
                             transform: `scale(${Math.max(1 - noCount * 0.1, 0.6)})`,
                         }}

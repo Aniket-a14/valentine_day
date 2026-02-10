@@ -43,23 +43,38 @@ export default function LoveMeter() {
     };
 
     return (
-        <div className="w-full card-comfy flex items-center justify-between px-6 py-2 group animate-in slide-in-from-bottom-5 duration-1000 hover:scale-[1.02] active:scale-[0.98] transition-transform duration-500 ease-out">
-            <div className="flex items-center gap-4">
-                <div className="flex flex-col">
-                    <span className="font-elegant italic text-pink-600 font-medium text-base tracking-wide leading-tight">Love Meter</span>
-                    <div className="flex items-center gap-2">
-                        <Heart className="w-4 h-4 text-rose-400 fill-rose-400 animate-pulse-soft" />
-                        <span className="font-romantic text-rose-600 text-3xl font-bold tabular-nums tracking-wide leading-none">{lovePercent}%</span>
-                    </div>
+        <div className="w-full card-comfy flex flex-col md:flex-row items-center justify-between p-4 md:px-8 gap-4 group animate-in slide-in-from-bottom-5 duration-1000 hover:scale-[1.01] transition-transform duration-500 ease-out bg-white/40 backdrop-blur-xl border border-rose-100/50 shadow-md relative overflow-hidden">
+
+            {/* Subtle Progress Background */}
+            <div
+                className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-rose-400 via-pink-500 to-rose-400 opacity-50 transition-all duration-1000 ease-out"
+                style={{ width: `${Math.min(lovePercent, 100)}%` }}
+            />
+
+            <div className="flex items-center gap-6 z-10">
+                <div className="flex items-center gap-3">
+                    <Heart className="w-5 h-5 text-rose-500 fill-rose-500 animate-pulse-soft" />
+                    <h2 className="font-elegant italic text-rose-600 font-bold text-lg tracking-wide">Love Meter</h2>
+                </div>
+
+                {/* Number Display */}
+                <div className="relative">
+                    <span className="font-romantic text-4xl md:text-5xl text-rose-600 font-bold tabular-nums tracking-tight leading-none drop-shadow-sm">
+                        {lovePercent}%
+                    </span>
+                    {/* Tiny floating hearts decoration */}
+                    <Heart className="absolute -top-1 -right-3 w-3 h-3 text-pink-300 fill-pink-200 animate-bounce-slow opacity-80" />
                 </div>
             </div>
 
             <button
                 onClick={boostLove}
-                className="btn-comfy-primary py-2 px-6 flex items-center gap-2 text-xs uppercase tracking-widest"
+                className="btn-comfy-primary py-2 px-6 text-sm uppercase tracking-widest shadow-md hover:shadow-rose-300 transition-all active:scale-95 z-10"
             >
-                <TrendingUp className="w-3 h-3" />
-                <span className="hidden sm:inline-block">Boost Love</span>
+                <div className="flex items-center justify-center gap-2">
+                    <TrendingUp className="w-4 h-4" />
+                    <span>Boost Love</span>
+                </div>
             </button>
         </div>
     );

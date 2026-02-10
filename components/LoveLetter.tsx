@@ -71,7 +71,7 @@ export default function LoveLetter() {
                     <span className="font-elegant text-xl text-rose-600 font-bold tracking-wide">Read my letter...</span>
                 </button>
             ) : (
-                <div className="relative w-full max-w-2xl bg-white/90 backdrop-blur-md rounded-[2rem] p-8 md:p-12 shadow-[0_20px_50px_rgba(244,63,94,0.15)] border border-pink-100 animate-in zoom-in-95 duration-700">
+                <div className="relative w-full max-w-2xl card-comfy p-8 md:p-12 animate-in zoom-in-95 duration-700">
                     <button
                         onClick={() => setIsOpen(false)}
                         className="absolute top-4 right-4 p-2 text-rose-300 hover:text-rose-500 transition-colors"
@@ -79,7 +79,7 @@ export default function LoveLetter() {
                         <X className="w-6 h-6" />
                     </button>
 
-                    <div className="font-elegant text-rose-800 text-lg md:text-xl leading-relaxed space-y-2 min-h-[300px]">
+                    <div className="font-elegant text-rose-900/80 text-lg md:text-xl leading-loose space-y-2 min-h-[300px]">
                         {typedLines.map((line, i) => (
                             <p key={i} className="min-h-[1.5em]">{line}</p>
                         ))}

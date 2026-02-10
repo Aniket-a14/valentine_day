@@ -68,11 +68,18 @@ export default function MusicPlayer() {
 
             {/* Active Player Card - Conditionally Rendered */}
             {isPlayerVisible && (
-                <div className="card-comfy p-4 flex flex-col gap-4 bg-white/40 backdrop-blur-lg border border-white/50 rounded-[2rem] shadow-xl animate-in slide-in-from-top-10 fade-in duration-700 fill-mode-backwards">
+                <div className="card-comfy p-4 flex flex-col gap-4 animate-in slide-in-from-top-10 fade-in duration-700 fill-mode-backwards">
                     {/* Song Info Header */}
                     <div className="flex items-center gap-3 border-b border-pink-100/50 pb-3">
                         <div className="w-10 h-10 bg-rose-500 rounded-full flex items-center justify-center text-white shadow-md animate-spin-slow">
                             <Disc className="w-6 h-6" />
+                        </div>
+                        {/* Fake Visualizer */}
+                        <div className="h-4 flex items-end gap-0.5">
+                            <div className="w-1 bg-rose-400 rounded-t-full animate-[bounce_1s_infinite] h-[60%]"></div>
+                            <div className="w-1 bg-rose-400 rounded-t-full animate-[bounce_1.2s_infinite] h-[100%]"></div>
+                            <div className="w-1 bg-rose-400 rounded-t-full animate-[bounce_0.8s_infinite] h-[40%]"></div>
+                            <div className="w-1 bg-rose-400 rounded-t-full animate-[bounce_1.1s_infinite] h-[80%]"></div>
                         </div>
                         <span className="font-romantic text-2xl text-rose-600 font-bold truncate">{currentSong.title}</span>
                         <div className="flex-1" />

@@ -21,7 +21,7 @@ export default function ReasonCard() {
     };
 
     return (
-        <div className="w-full h-full card-comfy flex flex-col justify-between p-6 md:p-8 animate-in slide-in-from-left-5 duration-1000 delay-200 hover:scale-[1.02] transition-transform duration-500 ease-out bg-white/40 backdrop-blur-lg border border-white/50 shadow-xl">
+        <div className="w-full h-full card-comfy flex flex-col justify-between p-6 md:p-8 animate-in slide-in-from-left-5 duration-1000 delay-200 hover:scale-[1.02] transition-transform duration-500 ease-out">
 
             {/* Header */}
             <div className="flex items-center gap-3">
