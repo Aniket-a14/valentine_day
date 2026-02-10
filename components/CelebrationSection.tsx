@@ -29,7 +29,7 @@ export default function CelebrationSection() {
                     <img
                         alt="Happy Cat"
                         className="w-full h-full object-cover"
-                        src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3N2eThzN2c1Z3UxdXFzN2g5N2R6ZWZ4eWl4Y2Z4ZWZ4ZWZ4ZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/MDJ9IbxxvDUQM/giphy.gif"
+                        src="https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif"
                     />
                 </div>
             </div>

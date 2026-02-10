@@ -14,89 +14,57 @@ import content from "@/app/content.json";
  * - Universal Clarity: Removed all blur filters to eliminate 'container' boundaries.
  * - Synchronized Portals: Foreground layer is a sharp 'depth-correction' overlay.
  * - Dynamic Toggle: Connected to useRibbon context.
+ * - PERFORMANCE OPTIMIZED: Uses refs and direct DOM manipulation for the path "d" attribute 
+ *   to avoid React re-renders on every animation frame.
  */
 
 export default function GiftWrapper() {
     const { showRibbon } = useRibbon();
-    const [docHeight, setDocHeight] = useState(1000);
-    const [frame, setFrame] = useState(0);
     const [mounted, setMounted] = useState(false);
-    const [isMobile, setIsMobile] = useState(false);
     const [frontPortal, setFrontPortal] = useState<HTMLElement | null>(null);
     const [backPortal, setBackPortal] = useState<HTMLElement | null>(null);
+
+    // Using refs for animation state to avoid re-renders
+    const frameRef = useRef(0);
+    const docHeightRef = useRef(1000);
+    const isMobileRef = useRef(false);
     const requestRef = useRef<number>(null);
     const throttledUpdateRef = useRef<NodeJS.Timeout>(null);
+
+    // DOM Refs for direct manipulation
+    const backPathRef = useRef<SVGPathElement>(null);
+    const backAccentPathRef = useRef<SVGPathElement>(null);
+    const shadowPathRef = useRef<SVGPathElement>(null);
+    const frontPathRef = useRef<SVGPathElement>(null);
+    const frontSheenPathRef = useRef<SVGPathElement>(null);
+    const backSVGRef = useRef<SVGSVGElement>(null);
+    const frontSVGRef = useRef<SVGSVGElement>(null);
 
     const speedDivisor = content.settings?.ribbonSpeed ?? 8000;
 
     useEffect(() => {
         setMounted(true);
-        setIsMobile(window.innerWidth < 768);
+        isMobileRef.current = window.innerWidth < 768;
         setFrontPortal(document.getElementById('ribbon-front-portal'));
         setBackPortal(document.getElementById('ribbon-back-portal'));
     }, []);
 
-    useEffect(() => {
-        if (!mounted || !showRibbon) return;
+    interface RibbonVertex {
+        p: { x: number; y: number };
+        nx: number;
+        ny: number;
+        width: number;
+        depthFactor: number;
+    }
 
-        const animate = (time: number) => {
-            setFrame(time / speedDivisor);
-            requestRef.current = requestAnimationFrame(animate);
-        };
-        requestRef.current = requestAnimationFrame(animate);
-        return () => {
-            if (requestRef.current) cancelAnimationFrame(requestRef.current);
-        }
-    }, [mounted, showRibbon, speedDivisor]);
-
-    useEffect(() => {
-        if (!mounted || !showRibbon) return;
-
-        const update = () => {
-            if (throttledUpdateRef.current) return;
-            throttledUpdateRef.current = setTimeout(() => {
-                const main = document.getElementById('main-content');
-                if (main) {
-                    const rect = main.getBoundingClientRect();
-                    const scrollY = window.scrollY;
-                    setDocHeight(Math.max(document.documentElement.scrollHeight, rect.height + rect.top + scrollY + 40));
-                } else {
-                    setDocHeight(document.documentElement.scrollHeight);
-                }
-                throttledUpdateRef.current = null;
-            }, 100); // Throttle to 10fps
-        };
-
-        update();
-        const observer = new MutationObserver(update);
-        observer.observe(document.body, { childList: true, subtree: true });
-        window.addEventListener('resize', () => {
-            setIsMobile(window.innerWidth < 768);
-            update();
-        });
-        window.addEventListener('scroll', update);
-        return () => {
-            window.removeEventListener('resize', update);
-            window.removeEventListener('scroll', update);
-            observer.disconnect();
-            if (throttledUpdateRef.current) clearTimeout(throttledUpdateRef.current);
-        };
-    }, [mounted, showRibbon]);
-
-    const ribbonGeometry = useMemo(() => {
-        if (!showRibbon) return [];
-        const h = docHeight;
-        // Adaptive Sampling: 400 steps on desktop, 120 on mobile
-        const steps = isMobile ? 120 : 380;
-        const vertices = [];
+    const updateGeometry = () => {
+        if (!showRibbon) return;
+        const h = docHeightRef.current;
+        const steps = isMobileRef.current ? 120 : 380;
+        const frame = frameRef.current;
         const baseWidth = 3.2;
 
-        const keyLight = { x: 0.8, y: -0.2, z: 1 };
-        const klLen = Math.sqrt(keyLight.x ** 2 + keyLight.y ** 2 + keyLight.z ** 2);
-        const key = { x: keyLight.x / klLen, y: keyLight.y / klLen, z: keyLight.z / klLen };
-
         const getPath = (t: number) => {
-            // Organic, non-looping path
             const xBase = 90 - 70 * t;
             const drift = Math.sin(t * Math.PI + frame * 0.7) * 5;
             const curve = Math.sin(t * Math.PI * 2.3 + frame * 0.4) * 15;
@@ -110,6 +78,7 @@ export default function GiftWrapper() {
             return { x: (p2.x - p1.x) / dt, y: (p2.y - p1.y) / dt };
         };
 
+        const ribbonGeometry: RibbonVertex[] = [];
         for (let i = 0; i <= steps; i++) {
             const t = i / steps;
             const p = getPath(t);
@@ -118,50 +87,21 @@ export default function GiftWrapper() {
             const nx = -d.y / len;
             const ny = d.x / len;
 
-            // Multi-frequency twist for organic physics
             const twist = Math.sin(t * Math.PI * 4.2 + frame) + Math.cos(t * Math.PI * 1.5 + frame * 0.5) * 0.5;
             const perspective = Math.abs(twist);
-            const isBackFace = twist < 0;
+            const snz = Math.sin(twist);
 
-            const sn = {
-                x: nx * Math.cos(twist),
-                y: ny * Math.cos(twist),
-                z: Math.sin(twist)
-            };
-
-            const diffuse = Math.max(0.15, (sn.x * key.x + sn.y * key.y + sn.z * key.z));
-            const rim = Math.pow(1 - Math.abs(sn.z), 4) * 0.4;
-            const intensity = Math.min(1, diffuse + rim);
-
-            const r = Math.floor(251 + (255 - 251) * intensity);
-            const g = Math.floor(113 + (241 - 113) * intensity);
-            const b = Math.floor(133 + (242 - 133) * intensity);
-
-            // True Physics Weaving: 
-            // The ribbon is "FrontLayer" only when sn.z > 0 (pointing towards camera)
-            const depthFactor = sn.z;
-
-            vertices.push({
+            ribbonGeometry.push({
                 p, nx, ny,
                 width: baseWidth * perspective,
-                color: `rgb(${r}, ${g}, ${b})`,
-                isBackFace,
-                depthFactor,
-                t
+                depthFactor: snz
             });
         }
-        return vertices;
-    }, [docHeight, frame, showRibbon]);
-
-    const layers = useMemo(() => {
-        if (!ribbonGeometry.length) return { back: "", front: "", shadow: "" };
 
         const buildPath = (indices: number[]) => {
             if (indices.length < 2) return "";
             const left: string[] = [];
             const right: string[] = [];
-
-            // Bridge handling to ensure sub-pixel continuity
             const startPad = Math.max(0, indices[0] - 1);
             const endPad = Math.min(ribbonGeometry.length - 1, indices[indices.length - 1] + 1);
             const run = [startPad, ...indices, endPad];
@@ -179,16 +119,16 @@ export default function GiftWrapper() {
         const shad: string[] = [];
 
         let currentRun: number[] = [];
-        let curIsFront = ribbonGeometry[0].depthFactor > 0.1; // Threshold for "coming forward"
+        let curIsFront = ribbonGeometry[0].depthFactor > 0.1;
 
         for (let i = 0; i < ribbonGeometry.length; i++) {
             const v = ribbonGeometry[i];
-            const isFront = v.depthFactor > 0.1; // Dynamic threshold based on physics
+            const isFront = v.depthFactor > 0.1;
 
             if (isFront !== curIsFront && currentRun.length > 0) {
                 const p = buildPath(currentRun);
                 if (curIsFront) frontPaths.push(p); else backPaths.push(p);
-                currentRun = [currentRun[currentRun.length - 1]]; // Stitching bridge
+                currentRun = [currentRun[currentRun.length - 1]];
                 curIsFront = isFront;
             }
             currentRun.push(i);
@@ -198,12 +138,71 @@ export default function GiftWrapper() {
         const finalP = buildPath(currentRun);
         if (curIsFront) frontPaths.push(finalP); else backPaths.push(finalP);
 
-        return {
-            back: backPaths.join(" "),
-            front: frontPaths.join(" "),
-            shadow: shad.join(" ")
+        // Direct DOM update
+        const backD = backPaths.join(" ");
+        const frontD = frontPaths.join(" ");
+        if (backPathRef.current) backPathRef.current.setAttribute('d', backD);
+        if (backAccentPathRef.current) backAccentPathRef.current.setAttribute('d', backD);
+        if (shadowPathRef.current) shadowPathRef.current.setAttribute('d', shad.join(" "));
+        if (frontPathRef.current) frontPathRef.current.setAttribute('d', frontD);
+        if (frontSheenPathRef.current) frontSheenPathRef.current.setAttribute('d', frontD);
+    };
+
+    useEffect(() => {
+        if (!mounted || !showRibbon) return;
+
+        const animate = (time: number) => {
+            frameRef.current = time / speedDivisor;
+            updateGeometry();
+            requestRef.current = requestAnimationFrame(animate);
         };
-    }, [ribbonGeometry]);
+        requestRef.current = requestAnimationFrame(animate);
+        return () => {
+            if (requestRef.current) cancelAnimationFrame(requestRef.current);
+        }
+    }, [mounted, showRibbon, speedDivisor]);
+
+    useEffect(() => {
+        if (!mounted || !showRibbon) return;
+
+        const updateDocHeight = () => {
+            if (throttledUpdateRef.current) return;
+            throttledUpdateRef.current = setTimeout(() => {
+                const main = document.getElementById('main-content');
+                if (main) {
+                    const rect = main.getBoundingClientRect();
+                    const scrollY = window.scrollY;
+                    docHeightRef.current = Math.max(document.documentElement.scrollHeight, rect.height + rect.top + scrollY + 40);
+                } else {
+                    docHeightRef.current = document.documentElement.scrollHeight;
+                }
+
+                // Update SVG viewBoxes directly
+                if (backSVGRef.current) backSVGRef.current.setAttribute('viewBox', `0 0 100 ${docHeightRef.current}`);
+                if (frontSVGRef.current) frontSVGRef.current.setAttribute('viewBox', `0 0 100 ${docHeightRef.current}`);
+
+                throttledUpdateRef.current = null;
+            }, 100);
+        };
+
+        updateDocHeight();
+        const observer = new MutationObserver(updateDocHeight);
+        observer.observe(document.body, { childList: true, subtree: true });
+
+        const handleResize = () => {
+            isMobileRef.current = window.innerWidth < 768;
+            updateDocHeight();
+        };
+
+        window.addEventListener('resize', handleResize);
+        window.addEventListener('scroll', updateDocHeight);
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            window.removeEventListener('scroll', updateDocHeight);
+            observer.disconnect();
+            if (throttledUpdateRef.current) clearTimeout(throttledUpdateRef.current);
+        };
+    }, [mounted, showRibbon]);
 
     const CommonDefs = useMemo(() => (
         <defs>
@@ -215,32 +214,34 @@ export default function GiftWrapper() {
         </defs>
     ), []);
 
-    const BackSVG = useMemo(() => (
+    const BackSVG = (
         <svg
-            viewBox={`0 0 100 ${docHeight}`}
+            ref={backSVGRef}
+            viewBox={`0 0 100 ${docHeightRef.current}`}
             preserveAspectRatio="none"
             className="w-full h-full"
             style={{ overflow: 'visible', willChange: 'transform' }}
         >
             {CommonDefs}
-            <path d={layers.shadow} fill="none" stroke="black" strokeWidth="8" className="opacity-[0.02] blur-3xl" />
-            <path d={layers.back} fill="#fb7185" className="opacity-95" />
-            <path d={layers.back} fill="#e11d48" className="opacity-60" />
+            <path ref={shadowPathRef} d="" fill="none" stroke="black" strokeWidth="8" className="opacity-[0.02] blur-3xl" />
+            <path ref={backPathRef} d="" fill="#fb7185" className="opacity-95" />
+            <path ref={backAccentPathRef} d="" fill="#e11d48" className="opacity-60" />
         </svg>
-    ), [docHeight, layers.shadow, layers.back, CommonDefs]);
+    );
 
-    const FrontSVG = useMemo(() => (
+    const FrontSVG = (
         <svg
-            viewBox={`0 0 100 ${docHeight}`}
+            ref={frontSVGRef}
+            viewBox={`0 0 100 ${docHeightRef.current}`}
             preserveAspectRatio="none"
             className="w-full h-full"
             style={{ overflow: 'visible', willChange: 'transform' }}
         >
             {CommonDefs}
-            <path d={layers.front} fill="#fb7185" className="opacity-100" />
-            <path d={layers.front} fill="url(#silk-sheen-physics)" className="mix-blend-overlay opacity-30" />
+            <path ref={frontPathRef} d="" fill="#fb7185" className="opacity-100" />
+            <path ref={frontSheenPathRef} d="" fill="url(#silk-sheen-physics)" className="mix-blend-overlay opacity-30" />
         </svg>
-    ), [docHeight, layers.front, CommonDefs]);
+    );
 
     if (!mounted || !showRibbon) return null;
 
