@@ -52,7 +52,6 @@ export default function QuestionSection({ onAccept }: QuestionSectionProps) {
 
     const handleNoInteraction = () => {
         handleNoClick();
-        playHover();
         triggerShake();
     }
 

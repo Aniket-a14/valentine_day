@@ -12,6 +12,9 @@ export default function useSound() {
     const successRef = useRef<HTMLAudioElement | null>(null);
     const typeRef = useRef<HTMLAudioElement | null>(null);
 
+    // State to track if a priority sound (click/success) is playing
+    const isPrioritySoundPlayingRef = useRef(false);
+
     // Audio Pool for hover sounds to prevent lag on rapid movements
     const hoverPoolRef = useRef<HTMLAudioElement[]>([]);
     const POOL_SIZE = 5;
@@ -56,22 +59,30 @@ export default function useSound() {
 
     }, []);
 
-    const playSound = useCallback((audio: HTMLAudioElement | null, volume = 0.5) => {
+    const playSound = useCallback((audio: HTMLAudioElement | null, volume = 0.5, isPriority = false) => {
         if (isMuted || !audio) return;
+
+        // Reset priority flag after sound finishes (approximate duration or manual reset)
+        if (isPriority) {
+            isPrioritySoundPlayingRef.current = true;
+            setTimeout(() => {
+                isPrioritySoundPlayingRef.current = false;
+            }, 300); // 300ms priority window where hover sounds are blocked
+        }
 
         audio.currentTime = 0;
         audio.volume = volume;
         audio.play().catch(() => { });
     }, [isMuted]);
 
-    const playClick = useCallback(() => playSound(clickRef.current, 0.5), [playSound, isMuted]);
+    const playClick = useCallback(() => playSound(clickRef.current, 0.5, true), [playSound]);
 
     const playHover = useCallback(() => {
-        if (isMuted) return;
+        if (isMuted || isPrioritySoundPlayingRef.current) return;
 
         const now = Date.now();
-        // Throttle hover sounds to 50ms to prevent audio glitches
-        if (now - lastHoverTimeRef.current < 50) return;
+        // Throttle hover sounds to 100ms (increased from 50ms) to prevent audio glitches and spam
+        if (now - lastHoverTimeRef.current < 100) return;
         lastHoverTimeRef.current = now;
 
         const pool = hoverPoolRef.current;
@@ -86,9 +97,15 @@ export default function useSound() {
 
     const playSuccess = useCallback(() => {
         if (isMuted || !successRef.current) return;
+        isPrioritySoundPlayingRef.current = true; // Block other sounds
         successRef.current.currentTime = 0;
         successRef.current.volume = 0.9;
         successRef.current.play().catch(() => { });
+
+        // Success sound is longer, block hover for longer
+        setTimeout(() => {
+            isPrioritySoundPlayingRef.current = false;
+        }, 2000);
     }, [isMuted]);
 
     const startWriting = useCallback(() => {
@@ -106,6 +123,7 @@ export default function useSound() {
 
     const playTear = useCallback(() => {
         if (isMuted || tearRefs.current.length === 0) return;
+        isPrioritySoundPlayingRef.current = true;
         const randomIndex = Math.floor(Math.random() * tearRefs.current.length);
         const audio = tearRefs.current[randomIndex];
 
@@ -113,9 +131,10 @@ export default function useSound() {
         audio.volume = 0.5;
         audio.play().catch(() => { });
 
-        // Stop after 800ms to ensure the rip usage is heard but doesn't linger too long
+        // Stop after 800ms
         setTimeout(() => {
             audio.pause();
+            isPrioritySoundPlayingRef.current = false;
         }, 800);
     }, [isMuted]);
 
