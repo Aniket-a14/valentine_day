@@ -93,9 +93,10 @@ export default function QuestionSection({ onAccept }: QuestionSectionProps) {
                     <button
                         onMouseEnter={handleNoInteraction}
                         onClick={handleNoInteraction}
-                        className={`btn-comfy-secondary py-3 px-10 text-lg font-elegant italic opacity-40 hover:opacity-100 transition-all duration-200 ${isShaking ? "animate-shake bg-rose-100/20 border-rose-200" : ""}`}
+                        className={`btn-comfy-secondary w-[150px] whitespace-nowrap py-3 px-4 text-lg font-elegant italic opacity-40 hover:opacity-100 transition-all duration-200 ${isShaking ? "animate-shake bg-rose-100/20 border-rose-200" : ""}`}
                         style={{
-                            transform: `scale(${Math.max(1 - noCount * 0.1, 0.6)})`,
+                            transform: `scale(${Math.max(1 - noCount * 0.15, 0)})`,
+                            opacity: Math.max(1 - noCount * 0.15, 0),
                         }}
                     >
                         {getNoButtonText()}
@@ -105,8 +106,8 @@ export default function QuestionSection({ onAccept }: QuestionSectionProps) {
 
             {/* Footer: Static at bottom */}
             <div className="mt-32 flex justify-center opacity-20 hover:opacity-60 transition-opacity duration-1000 z-10">
-                <p className="font-elegant italic text-rose-400 text-xs tracking-[0.3em] flex items-center gap-4 bg-white/5 backdrop-blur-xl px-12 py-4 rounded-full border border-white/10 pointer-events-auto hover:bg-white/10 transition-all">
-                    MADE WITH <Heart className="w-3 h-3 fill-rose-300/40" /> FOR YOU
+                <p className="font-elegant italic text-rose-800 text-xs tracking-[0.3em] flex items-center gap-4 bg-white/5 backdrop-blur-xl px-12 py-4 rounded-full border border-white/10 pointer-events-auto hover:bg-white/10 transition-all">
+                    MADE WITH <Heart className="w-3 h-3 fill-rose-800/40" /> FOR YOU
                 </p>
             </div>
         </div>
