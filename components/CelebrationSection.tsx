@@ -1,6 +1,7 @@
 "use client";
 
 import { Heart } from "lucide-react";
+import Image from "next/image";
 import LoveMeter from "./LoveMeter";
 import MusicPlayer from "./MusicPlayer";
 import ReasonCard from "./ReasonCard";
@@ -26,10 +27,12 @@ export default function CelebrationSection() {
             <div className="relative group max-w-xs md:max-w-sm w-full mx-auto animate-in zoom-in fade-in duration-1000 delay-300 fill-mode-backwards animate-breathe">
                 <div className="absolute -inset-4 bg-gradient-to-tr from-pink-500/30 via-rose-400/30 to-pink-500/30 rounded-[2rem] blur-2xl opacity-60 animate-pulse-soft"></div>
                 <div className="relative rounded-[2rem] overflow-hidden border-2 border-white shadow-xl shadow-pink-200/50 aspect-video transform transition-transform duration-700 hover:scale-[1.01]">
-                    <img
+                    <Image
                         alt="Happy Cat"
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
                         src="https://media.giphy.com/media/MDJ9IbxxvDUQM/giphy.gif"
+                        unoptimized
                     />
                 </div>
             </div>

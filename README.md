@@ -24,13 +24,15 @@ This is not a template; it's a high-fidelity digital haptic experience.
 *   **Curated Soundtrack**: A horizontally scrollable music player with smooth YouTube integration, allowing you to set the perfect mood.
 *   **Resonant Reasons**: An elegant card deck cycling through "Why you're special," designed with clean typography and soft transitions.
 *   **Mobile-Optimized**: A full responsive overhaul ensures the experience is just as beautiful on an iPhone or Android as it is on a desktop.
+*   **✨ Romantic Atmosphere**: Features a **Noise Grain Overlay** for texture, **Text Glow** effects, and a **Cursor Heart Trail** (desktop only) for a magical touch.
 
 ## 🛠️ Performance & Optimization (Silk Smooth 60fps)
 
 *   **Adaptive Geometry**: The Cinema Ribbon automatically adjusts its vertex density (380 steps on desktop, 120 on mobile) to maintain peak performance without sacrificing visual quality.
+*   **Smart Audio Priority**: A custom audio engine that prioritizes key interactions (clicks, success chimes) and intelligently throttles background hover sounds to prevent audio clutter.
+*   **Optimized Assets**: All sound effects are locally hosted to bypass potential SSL/network issues. Images use `next/image` for automatic format selection and lazy loading.
 *   **GPU Hardware Acceleration**: Utilizes `will-change: transform` hints to prioritize hardware-accelerated rendering for all fluid animations.
 *   **Throttled Height Physics**: Refined `MutationObserver` and resize listeners are throttled to 10fps to minimize CPU load during layout shifts.
-*   **Polyphonic Playback**: Uses `cloneNode()` logic in the `useSound` hook to allow rapid, overlapping sound effects without clipping.
 *   **Data-Driven Customization**: 100% of the content is externalized into `content.json` for effortless white-labeling.
 
 ---
@@ -81,9 +83,11 @@ Add or remove gifts from the `coupons` array.
 Replace URLs in the `audio` object to use custom MP3s.
 ```json
 "audio": {
-    "click": "https://assets.mixkit.co/...",
-    "type": "/my-custom-sound.mp3",
-    "tear": ["/rip-1.mp3", "/rip-2.mp3"]
+    "click": "/sfx/click.mp3",
+    "hover": "/sfx/hover.mp3",
+    "success": "/sfx/success.mp3",
+    "type": "/sfx/type.mp3",
+    "tear": ["/sfx/tear_1.mp3", "/sfx/tear_4.mp3"]
 }
 ```
 

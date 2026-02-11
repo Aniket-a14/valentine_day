@@ -19,6 +19,8 @@ export const metadata: Metadata = {
 };
 
 import { RibbonProvider, RibbonToggle } from "@/components/RibbonControl";
+import NoiseOverlay from "@/components/NoiseOverlay";
+import CursorTrail from "@/components/CursorTrail";
 
 export default function RootLayout({
   children,
@@ -38,6 +40,8 @@ export default function RootLayout({
           <div id="ribbon-front-portal" className="absolute top-0 left-0 w-full h-full pointer-events-none z-[60]" />
           <GiftWrapper />
           <RibbonToggle />
+          <NoiseOverlay />
+          <CursorTrail />
         </RibbonProvider>
       </body>
     </html>
