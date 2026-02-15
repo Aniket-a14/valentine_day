@@ -5,57 +5,37 @@ import { Heart, MailOpen, X } from "lucide-react";
 import useSound from "@/hooks/use-sound";
 import content from "@/app/content.json";
 
-const LETTER_CONTENT = content.letter;
+const LETTER_CONTENT = content.letter.join("\n");
 
 export default function LoveLetter() {
     const [isOpen, setIsOpen] = useState(false);
-    const [typedLines, setTypedLines] = useState<string[]>([]);
-    const [currentLineIndex, setCurrentLineIndex] = useState(0);
-    const [currentCharIndex, setCurrentCharIndex] = useState(0);
+    const [typedText, setTypedText] = useState("");
     const { startWriting, stopWriting } = useSound();
 
     // Manage writing sound
     useEffect(() => {
-        if (isOpen && currentLineIndex < LETTER_CONTENT.length) {
+        const isTyping = isOpen && typedText.length < LETTER_CONTENT.length;
+        if (isTyping) {
             startWriting();
         } else {
             stopWriting();
         }
-        return () => stopWriting();
-    }, [isOpen, currentLineIndex, startWriting, stopWriting]);
+    }, [isOpen, typedText.length, startWriting, stopWriting]);
 
     useEffect(() => {
         if (!isOpen) {
-            setTypedLines([]);
-            setCurrentLineIndex(0);
-            setCurrentCharIndex(0);
+            setTypedText("");
             return;
         }
 
-        if (currentLineIndex >= LETTER_CONTENT.length) return;
+        if (typedText.length >= LETTER_CONTENT.length) return;
 
         const timeout = setTimeout(() => {
-            const currentLine = LETTER_CONTENT[currentLineIndex];
-
-            if (currentCharIndex < currentLine.length) {
-                // Typing current line
-                setTypedLines(prev => {
-                    const newLines = [...prev];
-                    if (newLines[currentLineIndex] === undefined) newLines[currentLineIndex] = "";
-                    newLines[currentLineIndex] += currentLine[currentCharIndex];
-                    return newLines;
-                });
-                setCurrentCharIndex(prev => prev + 1);
-            } else {
-                // Move to next line
-                setCurrentLineIndex(prev => prev + 1);
-                setCurrentCharIndex(0);
-                setTypedLines(prev => [...prev, ""]); // Prepare next line
-            }
-        }, 50); // Typing speed
+            setTypedText(LETTER_CONTENT.slice(0, typedText.length + 1));
+        }, 40); // Slightly faster typing
 
         return () => clearTimeout(timeout);
-    }, [isOpen, currentLineIndex, currentCharIndex]);
+    }, [isOpen, typedText]);
 
     return (
         <div className="w-full flex justify-center py-10">
@@ -79,11 +59,9 @@ export default function LoveLetter() {
                         <X className="w-6 h-6" />
                     </button>
 
-                    <div className="font-elegant text-rose-900/80 text-lg md:text-xl leading-loose space-y-2 min-h-[300px]">
-                        {typedLines.map((line, i) => (
-                            <p key={i} className="min-h-[1.5em]">{line}</p>
-                        ))}
-                        {currentLineIndex < LETTER_CONTENT.length && (
+                    <div className="font-elegant text-rose-900/80 text-lg md:text-xl leading-loose whitespace-pre-wrap min-h-[300px]">
+                        {typedText}
+                        {typedText.length < LETTER_CONTENT.length && (
                             <span className="inline-block w-2 h-5 bg-rose-400 ml-1 animate-pulse align-middle"></span>
                         )}
                     </div>

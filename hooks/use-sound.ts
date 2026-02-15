@@ -3,92 +3,79 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import content from "@/app/content.json";
 
-// Hook to play sounds with performance optimizations
+// Hook to play sounds with extreme performance optimizations
 export default function useSound() {
     const [isMuted, setIsMuted] = useState(false);
 
-    // Create refs for audio objects
-    const clickRef = useRef<HTMLAudioElement | null>(null);
-    const successRef = useRef<HTMLAudioElement | null>(null);
-    const typeRef = useRef<HTMLAudioElement | null>(null);
+    // Use a WeakMap or just a cache object for lazy-loaded audio
+    const audioCacheRef = useRef<Record<string, HTMLAudioElement>>({});
 
     // State to track if a priority sound (click/success) is playing
     const isPrioritySoundPlayingRef = useRef(false);
 
-    // Audio Pool for hover sounds to prevent lag on rapid movements
+    // Audio Pool for hover sounds - Lazy initialized
     const hoverPoolRef = useRef<HTMLAudioElement[]>([]);
-    const POOL_SIZE = 5;
+    const POOL_SIZE = 3; // Reduced from 5 for memory efficiency
     const currentHoverIdxRef = useRef(0);
     const lastHoverTimeRef = useRef(0);
 
-    // Store array of tear sounds
-    const tearRefs = useRef<HTMLAudioElement[]>([]);
+    const getAudio = useCallback((url: string, volume = 0.5, forceNew = false) => {
+        if (audioCacheRef.current[url] && !forceNew) return audioCacheRef.current[url];
 
-    // Initialize audio objects on mount
-    useEffect(() => {
-        clickRef.current = new Audio(content.audio.click);
-        successRef.current = new Audio(content.audio.success);
-        typeRef.current = new Audio(content.audio.type);
-
-        // Pre-initialize hover pool
-        for (let i = 0; i < POOL_SIZE; i++) {
-            const audio = new Audio(content.audio.hover);
-            audio.volume = 0.2;
-            audio.load();
-            hoverPoolRef.current.push(audio);
-        }
-
-        // Load multiple tear sounds
-        if (Array.isArray(content.audio.tear)) {
-            tearRefs.current = content.audio.tear.map(url => {
-                const audio = new Audio(url);
-                audio.load();
-                return audio;
-            });
-        }
-
-        // Preload singles
-        clickRef.current.load();
-        successRef.current.load();
-        typeRef.current.load();
-
-        // Volume settings
-        if (clickRef.current) clickRef.current.volume = 0.5;
-        if (successRef.current) successRef.current.volume = 0.4;
-        if (typeRef.current) typeRef.current.volume = 0.4;
-
+        const audio = new Audio(url);
+        audio.volume = volume;
+        if (!forceNew) audioCacheRef.current[url] = audio;
+        return audio;
     }, []);
 
-    const playSound = useCallback((audio: HTMLAudioElement | null, volume = 0.5, isPriority = false) => {
-        if (isMuted || !audio) return;
+    // Cleanup on unmount
+    useEffect(() => {
+        return () => {
+            Object.values(audioCacheRef.current).forEach(a => {
+                a.pause();
+                a.src = "";
+            });
+            hoverPoolRef.current.forEach(a => {
+                a.pause();
+                a.src = "";
+            });
+        };
+    }, []);
 
-        // Reset priority flag after sound finishes (approximate duration or manual reset)
+    const playSound = useCallback((url: string, volume = 0.5, isPriority = false) => {
+        if (isMuted) return;
+
+        const audio = getAudio(url, volume);
+
         if (isPriority) {
             isPrioritySoundPlayingRef.current = true;
             setTimeout(() => {
                 isPrioritySoundPlayingRef.current = false;
-            }, 300); // 300ms priority window where hover sounds are blocked
+            }, 300);
         }
 
         audio.currentTime = 0;
         audio.volume = volume;
         audio.play().catch(() => { });
-    }, [isMuted]);
+    }, [isMuted, getAudio]);
 
-    const playClick = useCallback(() => playSound(clickRef.current, 0.5, true), [playSound]);
+
+    const playClick = useCallback(() => playSound(content.audio.click, 0.5, true), [playSound]);
 
     const playHover = useCallback(() => {
         if (isMuted || isPrioritySoundPlayingRef.current) return;
 
         const now = Date.now();
-        // Throttle hover sounds to 100ms (increased from 50ms) to prevent audio glitches and spam
-        if (now - lastHoverTimeRef.current < 100) return;
+        if (now - lastHoverTimeRef.current < 80) return;
         lastHoverTimeRef.current = now;
 
-        const pool = hoverPoolRef.current;
-        if (pool.length === 0) return;
+        if (hoverPoolRef.current.length < POOL_SIZE) {
+            const audio = new Audio(content.audio.hover);
+            audio.volume = 0.15;
+            hoverPoolRef.current.push(audio);
+        }
 
-        const audio = pool[currentHoverIdxRef.current];
+        const audio = hoverPoolRef.current[currentHoverIdxRef.current];
         audio.currentTime = 0;
         audio.play().catch(() => { });
 
@@ -96,44 +83,48 @@ export default function useSound() {
     }, [isMuted]);
 
     const playSuccess = useCallback(() => {
-        if (isMuted || !successRef.current) return;
-        isPrioritySoundPlayingRef.current = true; // Block other sounds
-        successRef.current.currentTime = 0;
-        successRef.current.volume = 0.9;
-        successRef.current.play().catch(() => { });
+        if (isMuted) return;
+        isPrioritySoundPlayingRef.current = true;
 
-        // Success sound is longer, block hover for longer
+        const audio = getAudio(content.audio.success, 0.9);
+        audio.currentTime = 0;
+        audio.play().catch(() => { });
+
         setTimeout(() => {
             isPrioritySoundPlayingRef.current = false;
         }, 2000);
-    }, [isMuted]);
+    }, [isMuted, getAudio]);
 
     const startWriting = useCallback(() => {
-        if (isMuted || !typeRef.current) return;
-        typeRef.current.loop = true;
-        typeRef.current.volume = 0.9;
-        typeRef.current.play().catch(() => { });
-    }, [isMuted]);
+        if (isMuted) return;
+        const audio = getAudio(content.audio.type, 0.8);
+        audio.loop = true;
+        audio.play().catch(() => { });
+    }, [isMuted, getAudio]);
 
     const stopWriting = useCallback(() => {
-        if (!typeRef.current) return;
-        typeRef.current.pause();
-        typeRef.current.currentTime = 0;
+        const audio = audioCacheRef.current[content.audio.type];
+        if (audio) {
+            audio.pause();
+            audio.currentTime = 0;
+        }
     }, []);
 
     const playTear = useCallback(() => {
-        if (isMuted || tearRefs.current.length === 0) return;
+        if (isMuted || !content.audio.tear) return;
         isPrioritySoundPlayingRef.current = true;
-        const randomIndex = Math.floor(Math.random() * tearRefs.current.length);
-        const audio = tearRefs.current[randomIndex];
 
-        audio.currentTime = 0;
+        const urls = Array.isArray(content.audio.tear) ? content.audio.tear : [content.audio.tear];
+        const url = urls[Math.floor(Math.random() * urls.length)];
+
+        // Don't cache tear sounds to keep memory low for one-offs
+        const audio = new Audio(url);
         audio.volume = 0.5;
         audio.play().catch(() => { });
 
-        // Stop after 800ms
         setTimeout(() => {
             audio.pause();
+            audio.src = ""; // Force release
             isPrioritySoundPlayingRef.current = false;
         }, 800);
     }, [isMuted]);

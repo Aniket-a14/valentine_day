@@ -3,19 +3,40 @@
 
 import { useEffect, useRef } from "react";
 
+// Pre-render heart for performance
+const HEART_SIZE = 40;
+let cachedHeart: HTMLCanvasElement | null = null;
+
+const getCachedHeart = () => {
+    if (cachedHeart) return cachedHeart;
+    const canvas = document.createElement("canvas");
+    canvas.width = HEART_SIZE;
+    canvas.height = HEART_SIZE;
+    const ctx = canvas.getContext("2d");
+    if (ctx) {
+        ctx.font = `${HEART_SIZE - 10}px serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("❤️", HEART_SIZE / 2, HEART_SIZE / 2);
+    }
+    cachedHeart = canvas;
+    return canvas;
+};
+
 export default function CursorTrail() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const heartsRef = useRef<HeartParticle[]>([]);
+    const particlesRef = useRef<HeartParticle[]>([]);
+    const poolRef = useRef<HeartParticle[]>([]);
     const requestRef = useRef<number>(null);
+    const activeRef = useRef(false);
 
     useEffect(() => {
-        // PC Only Check: coarse pointer usually means touch/mobile
         if (window.matchMedia("(pointer: coarse)").matches) return;
 
         const canvas = canvasRef.current;
         if (!canvas) return;
 
-        const ctx = canvas.getContext("2d");
+        const ctx = canvas.getContext("2d", { alpha: true });
         if (!ctx) return;
 
         let width = window.innerWidth;
@@ -31,35 +52,50 @@ export default function CursorTrail() {
         window.addEventListener("resize", resize);
         resize();
 
-        const addHeart = (x: number, y: number) => {
-            heartsRef.current.push(new HeartParticle(x, y));
+        const spawnParticle = (x: number, y: number) => {
+            let p = poolRef.current.pop();
+            if (p) {
+                p.init(x, y);
+            } else {
+                p = new HeartParticle(x, y);
+            }
+            particlesRef.current.push(p);
+
+            if (!activeRef.current) {
+                activeRef.current = true;
+                requestRef.current = requestAnimationFrame(animate);
+            }
         };
 
         const handleMouseMove = (e: MouseEvent) => {
-            // Throttle creation slightly
-            if (Math.random() > 0.5) {
-                addHeart(e.clientX, e.clientY);
+            if (Math.random() > 0.4) {
+                spawnParticle(e.clientX, e.clientY);
             }
         };
 
         window.addEventListener("mousemove", handleMouseMove);
 
         const animate = () => {
-            if (!ctx) return;
             ctx.clearRect(0, 0, width, height);
+            const heartImg = getCachedHeart();
 
-            heartsRef.current.forEach((heart, index) => {
-                heart.update();
-                heart.draw(ctx);
-                if (heart.life <= 0) {
-                    heartsRef.current.splice(index, 1);
+            for (let i = particlesRef.current.length - 1; i >= 0; i--) {
+                const p = particlesRef.current[i];
+                p.update();
+                p.draw(ctx, heartImg);
+
+                if (p.life <= 0) {
+                    particlesRef.current.splice(i, 1);
+                    poolRef.current.push(p);
                 }
-            });
+            }
 
-            requestRef.current = requestAnimationFrame(animate);
+            if (particlesRef.current.length > 0) {
+                requestRef.current = requestAnimationFrame(animate);
+            } else {
+                activeRef.current = false;
+            }
         };
-
-        requestRef.current = requestAnimationFrame(animate);
 
         return () => {
             window.removeEventListener("resize", resize);
@@ -77,37 +113,42 @@ export default function CursorTrail() {
 }
 
 class HeartParticle {
-    x: number;
-    y: number;
-    size: number;
-    speedX: number;
-    speedY: number;
-    life: number;
-    color: string;
+    x: number = 0;
+    y: number = 0;
+    size: number = 0;
+    speedX: number = 0;
+    speedY: number = 0;
+    life: number = 0;
+    rotation: number = 0;
 
     constructor(x: number, y: number) {
+        this.init(x, y);
+    }
+
+    init(x: number, y: number) {
         this.x = x;
         this.y = y;
-        this.size = Math.random() * 8 + 5;
+        this.size = Math.random() * 15 + 10;
         this.speedX = Math.random() * 2 - 1;
-        this.speedY = Math.random() * 2 - 1;
+        this.speedY = Math.random() * -1 - 1;
         this.life = 1.0;
-        this.color = `hsl(${Math.random() * 20 + 330}, 100%, 70%)`; // Pinks
+        this.rotation = Math.random() * Math.PI * 2;
     }
 
     update() {
         this.x += this.speedX;
-        this.y += this.speedY; // Fall down/float
+        this.y += this.speedY;
         this.speedY += 0.05; // Gravity
         this.life -= 0.02;
-        this.size *= 0.96;
+        this.size *= 0.98;
     }
 
-    draw(ctx: CanvasRenderingContext2D) {
-        ctx.fillStyle = this.color;
+    draw(ctx: CanvasRenderingContext2D, img: HTMLCanvasElement) {
         ctx.globalAlpha = this.life;
-        ctx.font = `${this.size}px serif`;
-        ctx.fillText("❤️", this.x, this.y);
-        ctx.globalAlpha = 1.0;
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rotation);
+        ctx.drawImage(img, -this.size / 2, -this.size / 2, this.size, this.size);
+        ctx.restore();
     }
 }

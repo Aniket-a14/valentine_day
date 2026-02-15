@@ -60,7 +60,7 @@ export default function GiftWrapper() {
     const updateGeometry = () => {
         if (!showRibbon) return;
         const h = docHeightRef.current;
-        const steps = isMobileRef.current ? 120 : 380;
+        const steps = isMobileRef.current ? 40 : 120; // Reduced from 120/380
         const frame = frameRef.current;
         const baseWidth = 3.2;
 
@@ -132,7 +132,8 @@ export default function GiftWrapper() {
                 curIsFront = isFront;
             }
             currentRun.push(i);
-            if (i % 8 === 0) shad.push(`M ${v.p.x + 1} ${v.p.y + 2} h 0.1`);
+            // Optimization: Skip shadow segments to reduce path complexity
+            if (i % 12 === 0) shad.push(`M ${v.p.x + 1} ${v.p.y + 2} h 0.1`);
         }
 
         const finalP = buildPath(currentRun);
@@ -223,7 +224,7 @@ export default function GiftWrapper() {
             style={{ overflow: 'visible', willChange: 'transform' }}
         >
             {CommonDefs}
-            <path ref={shadowPathRef} d="" fill="none" stroke="black" strokeWidth="8" className="opacity-[0.02] blur-3xl" />
+            <path ref={shadowPathRef} d="" fill="none" stroke="black" strokeWidth="8" className="opacity-[0.05]" /> {/* Removed blur-3xl */}
             <path ref={backPathRef} d="" fill="#fb7185" className="opacity-95" />
             <path ref={backAccentPathRef} d="" fill="#e11d48" className="opacity-60" />
         </svg>

@@ -2,8 +2,13 @@
 
 import { useState } from "react";
 import QuestionSection from "../components/QuestionSection"
-import CelebrationSection from "../components/CelebrationSection"
 import Background from "../components/Background";
+import dynamic from "next/dynamic";
+
+const CelebrationSection = dynamic(() => import("../components/CelebrationSection"), {
+  ssr: false,
+  loading: () => <div className="min-h-screen flex items-center justify-center font-elegant italic text-rose-300">Loading celebration...</div>
+});
 
 export default function Home() {
   const [accepted, setAccepted] = useState(false);
@@ -17,7 +22,7 @@ export default function Home() {
             <QuestionSection onAccept={() => setAccepted(true)} />
           </div>
         ) : (
-          <div className="w-full animate-in zoom-in fade-in duration-1000 delay-100 fill-mode-forwards p-4">
+          <div className="w-full animate-in zoom-in fade-in duration-1000 delay-100 fill-mode-forwards p-4 defer-render">
             <CelebrationSection />
           </div>
         )}
